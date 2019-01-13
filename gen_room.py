@@ -12,7 +12,7 @@ def mirror_v(blockers):
 
 
 def gen_empty_room():
-    return {"blockers": []}
+    return {"blockers": [], "gaps": []}
 
 
 def gen_obstacle_room():
@@ -26,7 +26,7 @@ def gen_obstacle_room():
     blockers.extend(mirror_v(blockers))
     blockers.extend(mirror_h(blockers))
 
-    return {"blockers": blockers}
+    return {"blockers": blockers, "gaps": []}
 
 
 def gen_divided_room():
@@ -52,7 +52,7 @@ def gen_divided_room():
             unblocked += 1
             blockers.remove(pos)
 
-    return {"blockers": blockers}
+    return {"blockers": blockers, "gaps": []}
 
 
 def gen_room():
