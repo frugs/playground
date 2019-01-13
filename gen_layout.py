@@ -1,15 +1,8 @@
 import random
 
+from dir_utils import opposite, dir_to_vec
 from gen_room import gen_room, gen_empty_room
 from vec_utils import vec_sum
-
-
-def opposite(direction: str) -> str:
-    return {"n": "s", "s": "n", "w": "e", "e": "w"}[direction]
-
-
-def dir_to_vec(direction: str) -> (int, int):
-    return {"n": (0, -1), "s": (0, 1), "w": (-1, 0), "e": (1, 0)}[direction]
 
 
 def try_gen_layout():

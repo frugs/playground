@@ -1,6 +1,7 @@
 import PIL.Image
 
 from constants import CELL_SIZE, ROOM_SIZE
+from dir_utils import opposite, dir_to_vec
 from render_room import render_room
 from vec_utils import vec_sum
 
@@ -41,12 +42,18 @@ def render_layout(layout):
     room_bg.paste(h_wall, (0, CELL_SIZE * (ROOM_SIZE - 1)))
     room_bg.paste(v_wall, (CELL_SIZE * (ROOM_SIZE - 1), 0))
 
-    def door_cell(direction: str):
+    def doorway_cells(direction: str):
         return {
-            "n": (CELL_SIZE * 2, 0),
-            "s": (CELL_SIZE * 2, CELL_SIZE * (ROOM_SIZE - 1)),
-            "e": (CELL_SIZE * (ROOM_SIZE - 1), CELL_SIZE * 2),
-            "w": (0, CELL_SIZE * 2),
+            "n": [(CELL_SIZE * 2, 0), (CELL_SIZE * 2, CELL_SIZE)],
+            "s": [
+                (CELL_SIZE * 2, CELL_SIZE * (ROOM_SIZE - 1)),
+                (CELL_SIZE * 2, CELL_SIZE * (ROOM_SIZE - 2)),
+            ],
+            "e": [
+                (CELL_SIZE * (ROOM_SIZE - 1), CELL_SIZE * 2),
+                (CELL_SIZE * (ROOM_SIZE - 2), CELL_SIZE * 2),
+            ],
+            "w": [(0, CELL_SIZE * 2), (CELL_SIZE, CELL_SIZE * 2)],
         }[direction]
 
     for node in layout:
@@ -55,12 +62,16 @@ def render_layout(layout):
 
         image.paste(room_bg, (left, top))
 
-        for ex in node["exits"]:
-            door_pos = vec_sum(door_cell(ex["dir"]), (left, top))
-            image.paste(doorway, door_pos)
-
         room_image = render_room(node["room"])
         image.paste(room_image, (left, top), room_image)
+
+        for ex in node["exits"]:
+            doorway_positions = [
+                vec_sum(doorway_cell, (left, top))
+                for doorway_cell in doorway_cells(ex["dir"])
+            ]
+            for pos in doorway_positions:
+                image.paste(doorway, pos)
 
     return image
 

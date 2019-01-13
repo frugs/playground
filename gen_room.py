@@ -55,9 +55,32 @@ def gen_divided_room():
     return {"blockers": blockers, "gaps": []}
 
 
+def gen_gap_platform_room():
+    gaps = [(1, i) for i in range(1, ROOM_SIZE // 2)]
+    gaps.extend([(i, 1) for i in range(1, ROOM_SIZE // 2)])
+    gaps.extend(
+        [
+            (ROOM_SIZE // 2 - 1, ROOM_SIZE // 2 - 1),
+            (ROOM_SIZE // 2 - 2, ROOM_SIZE // 2 - 1),
+            (ROOM_SIZE // 2 - 1, ROOM_SIZE // 2 - 2),
+            (ROOM_SIZE // 2 - 2, ROOM_SIZE // 2 - 2),
+            (ROOM_SIZE // 2 - 1, ROOM_SIZE // 2 - 3),
+            (ROOM_SIZE // 2 - 3, ROOM_SIZE // 2 - 1),
+        ]
+    )
+    gaps.extend(mirror_h(gaps))
+    gaps.extend(mirror_v(gaps))
+    return {"blockers": [], "gaps": list(set(gaps))}
+
+
 def gen_room():
-    population = [gen_empty_room, gen_divided_room, gen_obstacle_room]
-    cum_weights = [0.2, 0.4, 1]
+    population = [
+        gen_empty_room,
+        gen_divided_room,
+        gen_gap_platform_room,
+        gen_obstacle_room,
+    ]
+    cum_weights = [0.2, 0.4, 0.7, 1]
     return random.choices(population, cum_weights=cum_weights)[0]()
 
 
