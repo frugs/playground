@@ -1,6 +1,8 @@
 import random
 
 from constants import ROOM_SIZE
+from dir_utils import dir_to_pos, dir_to_vec, opposite
+from vec_utils import vec_sum
 
 
 def mirror_h(blockers):
@@ -11,11 +13,11 @@ def mirror_v(blockers):
     return [(ROOM_SIZE - 1 - pos[0], pos[1]) for pos in blockers]
 
 
-def gen_empty_room():
+def gen_empty_room(exit_dirs):
     return {"blockers": [], "gaps": []}
 
 
-def gen_obstacle_room():
+def gen_obstacle_room(exit_dirs):
     num_blockers = random.randrange(6, 10)
     blockers = list(
         {
@@ -29,7 +31,7 @@ def gen_obstacle_room():
     return {"blockers": blockers, "gaps": []}
 
 
-def gen_divided_room():
+def gen_divided_room(exit_dirs):
     tl_blockers = [(i, ROOM_SIZE // 2) for i in range(ROOM_SIZE // 2)]
     br_blockers = mirror_v(mirror_h(tl_blockers))
 
@@ -55,7 +57,44 @@ def gen_divided_room():
     return {"blockers": blockers, "gaps": []}
 
 
-def gen_gap_platform_room():
+def gen_gap_platform_room(exit_dirs):
+    gaps = [(1, i) for i in range(1, ROOM_SIZE // 2)]
+    gaps.extend([(i, 1) for i in range(1, ROOM_SIZE // 2)])
+    gaps.extend(
+        [
+            (ROOM_SIZE // 2 - 1, ROOM_SIZE // 2 - 1),
+            (ROOM_SIZE // 2 - 2, ROOM_SIZE // 2 - 1),
+            (ROOM_SIZE // 2 - 1, ROOM_SIZE // 2 - 2),
+            (ROOM_SIZE // 2 - 2, ROOM_SIZE // 2 - 2),
+            (ROOM_SIZE // 2 - 1, ROOM_SIZE // 2 - 3),
+            (ROOM_SIZE // 2 - 3, ROOM_SIZE // 2 - 1),
+        ]
+    )
+    gaps.extend([(2, 2), (2, 3), (3, 2)])
+    gaps.extend(mirror_h(gaps))
+    gaps.extend(mirror_v(gaps))
+
+    for direction in exit_dirs:
+        pre_doorway_pos = vec_sum(
+            dir_to_pos(direction), dir_to_vec(opposite(direction))
+        )
+        if pre_doorway_pos in gaps:
+            gaps.remove(pre_doorway_pos)
+
+        pre_pre_doorway_pos = vec_sum(pre_doorway_pos, dir_to_vec(opposite(direction)))
+        if pre_pre_doorway_pos in gaps:
+            gaps.remove(pre_pre_doorway_pos)
+
+        pre_pre_pre_doorway_pos = vec_sum(
+            pre_pre_doorway_pos, dir_to_vec(opposite(direction))
+        )
+        if pre_pre_pre_doorway_pos in gaps:
+            gaps.remove(pre_pre_pre_doorway_pos)
+
+    return {"blockers": [], "gaps": list(set(gaps))}
+
+
+def gen_gap_bridge_room(exit_dirs):
     gaps = [(1, i) for i in range(1, ROOM_SIZE // 2)]
     gaps.extend([(i, 1) for i in range(1, ROOM_SIZE // 2)])
     gaps.extend(
@@ -73,7 +112,7 @@ def gen_gap_platform_room():
     return {"blockers": [], "gaps": list(set(gaps))}
 
 
-def gen_room():
+def gen_room(exit_dirs):
     population = [
         gen_empty_room,
         gen_divided_room,
@@ -81,13 +120,13 @@ def gen_room():
         gen_obstacle_room,
     ]
     cum_weights = [0.2, 0.4, 0.7, 1]
-    return random.choices(population, cum_weights=cum_weights)[0]()
+    return random.choices(population, cum_weights=cum_weights)[0](exit_dirs)
 
 
 def main():
     import json
 
-    print(json.dumps(gen_room()))
+    print(json.dumps(gen_room(["s", "e"])))
 
 
 if __name__ == "__main__":

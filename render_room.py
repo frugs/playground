@@ -24,7 +24,7 @@ def render_room(room):
 def main():
     from gen_room import gen_room
 
-    image = render_room(gen_room())
+    image = render_room(gen_room(["s", "e"]))
     image.show()
 
 

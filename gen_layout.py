@@ -8,14 +8,7 @@ from vec_utils import vec_sum
 def try_gen_layout():
     # generate a linear layout
     num_nodes = random.randrange(7, 10)
-    nodes = [
-        {
-            "id": i,
-            "exits": [],
-            "room": gen_room() if i < num_nodes - 1 else gen_empty_room(),
-        }
-        for i in range(num_nodes)
-    ]
+    nodes = [{"id": i, "exits": []} for i in range(num_nodes)]
 
     assert len(nodes) >= 2
 
@@ -35,6 +28,13 @@ def try_gen_layout():
 
         cur_loc = vec_sum(cur_loc, dir_to_vec(opposite(entrance)))
         node["loc"] = cur_loc
+
+    for i, node in enumerate(nodes):
+        node["room"] = (
+            gen_room([ex["dir"] for ex in node["exits"]])
+            if i < num_nodes - 1
+            else gen_empty_room([])
+        )
 
     return nodes
 
