@@ -10,6 +10,6 @@ def dir_to_vec(direction: str) -> (int, int):
 
 
 def dir_to_pos(direction: str) -> (int, int):
-    return {"n": (2, 0), "s": (2, ROOM_SIZE - 1), "e": (ROOM_SIZE - 1, 2), "w": (0, 2)}[
+    return {"n": (3, 0), "s": (3, ROOM_SIZE - 1), "e": (ROOM_SIZE - 1, 3), "w": (0, 3)}[
         direction
     ]
